@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.xn--pizzadaluigi-badmnder-pic.de/sitemap.xml
