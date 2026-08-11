@@ -317,7 +317,32 @@
     "Cook For You.": "für Sie kochen.",
     "jan 05, 2022 at 8:00": "05. Jan 2022 um 8:00",
     "jan 15, 2022 at 8:00": "15. Jan 2022 um 8:00",
-    "jan 02, 2022 at 8:00": "02. Jan 2022 um 8:00"
+    "jan 02, 2022 at 8:00": "02. Jan 2022 um 8:00",
+
+    // order.html - online ordering (menu, cart, checkout)
+    "Order Online – Pizza Da Luigi – Bad Münder am Deister": "Online Bestellen – Pizza Da Luigi – Bad Münder am Deister",
+    "Order Online": "Online Bestellen",
+    "Fresh Pizza, Ready for Pickup": "Frische Pizza, bereit zur Abholung",
+    "or Delivered to You": "oder zu Ihnen geliefert",
+    "Build your order below – it goes straight to our kitchen.": "Stellen Sie unten Ihre Bestellung zusammen – sie geht direkt in unsere Küche.",
+    "Loading menu…": "Speisekarte wird geladen…",
+    "Online ordering isn’t available right now.": "Online-Bestellungen sind momentan nicht verfügbar.",
+    "Please call us directly:": "Bitte rufen Sie uns direkt an:",
+    "The menu isn’t set up yet. Please check back soon.": "Die Speisekarte ist noch nicht eingerichtet. Bitte schauen Sie später wieder vorbei.",
+    "Your Order": "Ihre Bestellung",
+    "Your cart is empty. Add something delicious!": "Ihr Warenkorb ist leer. Fügen Sie etwas Leckeres hinzu!",
+    "Subtotal": "Zwischensumme",
+    "Delivery fee": "Liefergebühr",
+    "Phone, e.g. +49 176 1234567": "Telefon, z. B. +49 176 1234567",
+    "Delivery Address": "Lieferadresse",
+    "Notes (optional)": "Anmerkungen (optional)",
+    "Pickup": "Abholung",
+    "Delivery": "Lieferung",
+    "Place Order": "Bestellung aufgeben",
+    "Placing order…": "Bestellung wird aufgegeben…",
+    "Thank you! Your order number is": "Vielen Dank! Ihre Bestellnummer ist",
+    "We’re preparing it now.": "Wir bereiten sie jetzt zu.",
+    "View Cart": "Warenkorb ansehen"
 };
 
     var STORAGE_KEY = 'site-lang';
@@ -421,6 +446,13 @@
         translateAttributes(lang);
         document.documentElement.setAttribute('lang', lang);
     }
+
+    // Content injected after page load (e.g. the online-order menu/cart, fetched
+    // asynchronously) isn't on the page yet when the initial applyLanguage() runs,
+    // so pages that render dynamic content call this afterwards to translate it too.
+    window.applySiteLanguage = function () {
+        applyLanguage(localStorage.getItem(STORAGE_KEY) || 'de');
+    };
 
     document.addEventListener('DOMContentLoaded', function () {
         // main.js already toggles the .active class on .lang-switcher .lang-btn

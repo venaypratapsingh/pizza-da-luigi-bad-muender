@@ -1,5 +1,4 @@
-.claude/
+.vercel
 .env
 .env.local
 .env*.local
-.vercel

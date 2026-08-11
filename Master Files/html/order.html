@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
@@ -6,10 +6,10 @@
     <head>
         <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Pizza DA Luigi - Bad Münder am Deister Restaurant ">
+    <meta name="description" content="Order Pizza Da Luigi online for pickup or delivery in Bad Münder am Deister">
     <meta name="author" content="ThemeEaster">
 
-    <title>Pizza Da Luigi – Bad Münder am Deister | Authentische Italienische Pizzeria </title>
+    <title>Order Online – Pizza Da Luigi – Bad Münder am Deister</title>
 
     <!-- Favicon / App Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="assets/img/logo-light.png">
@@ -33,6 +33,7 @@
         <link rel="stylesheet" href="assets/css/blog.css">
         <link rel="stylesheet" href="assets/css/main.css">
         <link rel="stylesheet" href="assets/css/responsive.css">
+        <link rel="stylesheet" href="assets/css/order.css">
 
         <script src="assets/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     </head>
@@ -51,7 +52,7 @@
                 <div class="container">
                     <div class="primary-header-inner">
                         <div class="header-logo">
-                            <a href="#">
+                            <a href="index.html">
                                 <img class="light" src="assets/img/logo-light.png" alt="Logo"/>
                                 <img class="dark" src="assets/img/logo-light.png" alt="Logo"/>
                             </a>
@@ -72,7 +73,7 @@
                                 <button type="button" class="lang-btn" data-lang="de"><span class="flag">🇩🇪</span>DE</button>
                             </div><!-- /.lang-switcher -->
                             <div class="search-icon dl-search-icon"><i class="las la-search"></i></div>
-                            <a class="header-btn" href="reservation.html">Order Now<span></span></a>
+                            <a class="header-btn" href="order.html">Order Now<span></span></a>
                             <!-- Burger menu -->
                             <div class="mobile-menu-icon">
                                 <div class="burger-menu">
@@ -96,64 +97,109 @@
             </div>
         </div><!-- /#popup-search-box -->
 
-        <section class="page-header">
+        <section class="page-header" style="background-image:url(assets/img/order-page.jpg);background-size:cover;background-position:center;position:relative;overflow:hidden;">
             <div class="bg-shape grey"></div>
-            <div class="container">
+            <div class="page-header-overlay"></div>
+            <div class="container" style="position:relative;z-index:2;">
                 <div class="page-header-content">
-                    <h4>Book Your Table</h4>
-                    <h2>Experience The Taste <br>of Italian Food.</h2>
-                    <p>Food is any substance consumed to provide nutritional <br>support for an organism.</p>
+                    <h4>Order Online</h4>
+                    <h2>Fresh Pizza, Ready for Pickup <br>or Delivered to You</h2>
+                    <p>Build your order below &ndash; it goes straight to our kitchen.</p>
                 </div>
             </div>
         </section><!--/.page-header-->
 
-        <section class="booking-section bg-grey padding">
-           <div class="bg-shape white"></div>
+        <section class="order-page bg-grey padding">
+            <div class="bg-shape white"></div>
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-6 sm-padding">
-                        <div class="section-heading">
-                            <h4>Reservation</h4>
-                            <h2>Enjoy Our Tasty Food <br>Reserve <span>Your Table</span></h2>
-                            <p>The restaurants in Hangzhou also catered to many northern Chinese who had fled south from Kaifeng during the Jurchen invasion of the 1120s, while it is also known that many restaurants were run by families.</p>
-                            <a href="#" class="default-btn">Contact Us <span></span></a>
-                        </div>
+                <div class="order-layout">
+                    <div class="category-sidebar">
+                        <div id="category-tabs" class="category-tabs"></div>
                     </div>
-                    <div class="col-lg-6 sm-padding">
-                        <div class="booking-form">
-                            <h3>Book a Table <span></span></h3>
-                            <form action="booking-form.php" method="post" id="ajax_booking_form" class="form-horizontal">
-                                <div class="booking-form-group">
-                                    <div class="form-padding">
-                                        <input type="text" id="b_name" name="b_name" class="form-control" placeholder="Your Name" required>
-                                    </div>
-                                    <div class="form-padding">
-                                        <input type="email" id="b_email" name="b_email" class="form-control" placeholder="Email" required>
-                                    </div>
-                                    <div class="form-padding">
-                                        <select class="form-select" id="b_person" name="b_person">
-                                          <option selected>Person</option>
-                                          <option>2 Person</option>
-                                          <option>3 Person</option>
-                                          <option>4 Person</option>
-                                          <option>5 Person</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-padding">
-                                        <input class="form-control" type="date" id="b_date" name="b_date">
-                                    </div>
-                                    <div class="form-padding">
-                                        <textarea id="b_message" name="b_message" cols="30" rows="6" class="form-control message" placeholder="Message" required></textarea>
-                                    </div>
-                                </div>
-                                <button id="b_submit" class="book-btn" type="submit">Book a Table</button>
-                                <div id="b-form-messages" class="alert" role="alert"></div>
-                            </form>
+                    <div class="menu-panel">
+                        <div id="menu-loading" class="order-status-box">
+                            <p>Loading menu&hellip;</p>
                         </div>
+                        <div id="menu-error" class="order-status-box" style="display:none;">
+                            <p>Online ordering isn&rsquo;t available right now.<br>Please call us directly: <a href="tel:+4950429860194">+49 5042 9860194</a></p>
+                        </div>
+                        <div id="menu-empty" class="order-status-box" style="display:none;">
+                            <p>The menu isn&rsquo;t set up yet. Please check back soon.</p>
+                        </div>
+
+                        <div id="menu-categories"></div>
                     </div>
                 </div>
             </div>
-        </section><!--/.booking-section-->
+        </section><!--/.order-page-->
+
+        <!-- Floating summary bar: hidden until the cart has at least one item -->
+        <div id="cart-bar" class="cart-bar" style="display:none;">
+            <span id="cart-bar-summary" class="cart-bar-summary"></span>
+            <button type="button" id="cart-bar-open" class="default-btn cart-bar-btn"><span class="btn-label">View Cart</span><span></span></button>
+        </div>
+
+        <!-- Cart / checkout, opened on demand via the bar above -->
+        <div id="cart-overlay" class="cart-overlay" style="display:none;">
+            <div id="cart-overlay-backdrop" class="cart-overlay-backdrop"></div>
+            <div class="cart-overlay-panel">
+                <div class="cart-total">
+                    <div class="cart-overlay-header">
+                        <h3 class="cart-title">Your Order <span></span></h3>
+                        <button type="button" id="cart-overlay-close" class="cart-overlay-close" aria-label="Close">&times;</button>
+                    </div>
+
+                    <div id="cart-empty" class="cart-empty">
+                        <p>Your cart is empty. Add something delicious!</p>
+                    </div>
+
+                    <ul id="cart-items" class="cart-items-list"></ul>
+
+                    <ul id="cart-summary" class="cart-summary-list" style="display:none;">
+                        <li><span>Subtotal</span><span id="cart-subtotal">&euro;0.00</span></li>
+                        <li id="cart-delivery-row" style="display:none;"><span>Delivery fee</span><span id="cart-delivery-fee">&euro;0.00</span></li>
+                        <li class="cart-total-row"><span>Total</span><span id="cart-total-amount">&euro;0.00</span></li>
+                    </ul>
+
+                    <form id="checkout-form" class="checkout-form" style="display:none;">
+                        <div class="form-field">
+                            <input type="text" id="checkout-name" name="name" class="form-control" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-field">
+                            <input type="tel" id="checkout-phone" name="phone" class="form-control" placeholder="Phone, e.g. +49 176 1234567" required>
+                        </div>
+
+                        <div class="order-type-toggle">
+                            <label class="order-type-option">
+                                <input type="radio" name="order-type" value="takeaway" checked>
+                                <span>Pickup</span>
+                            </label>
+                            <label class="order-type-option">
+                                <input type="radio" name="order-type" value="delivery">
+                                <span>Delivery</span>
+                            </label>
+                        </div>
+
+                        <div class="form-field" id="delivery-address-wrap" style="display:none;">
+                            <input type="text" id="checkout-address" name="address" class="form-control" placeholder="Delivery Address">
+                        </div>
+
+                        <div class="form-field">
+                            <textarea id="checkout-notes" name="notes" class="form-control" rows="3" placeholder="Notes (optional)"></textarea>
+                        </div>
+
+                        <div id="checkout-error" class="checkout-error" style="display:none;"></div>
+
+                        <button type="submit" id="checkout-submit" class="default-btn checkout-submit-btn"><span class="btn-label">Place Order</span><span></span></button>
+                    </form>
+
+                    <div id="order-confirmation" class="order-confirmation" style="display:none;">
+                        <p>Thank you! Your order number is <strong id="confirmed-order-number"></strong>.</p>
+                        <p>We&rsquo;re preparing it now.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <footer class="footer-section">
             <div class="footer-top">
@@ -167,9 +213,7 @@
                                 <p>Pizzada Luigi &ndash; Authentic Italian Pizzeria in Bad M&uuml;nder am Deister. Enjoy fresh handcrafted pizzas, traditional Italian recipes and warm hospitality &ndash; the best pizza experience in the region!</p>
                                 <ul class="footer-social">
                                     <li><a href="#"><i class="fab fa-facebook"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
                                     <li><a href="#"><i class="fab fa-instagram"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest"></i></a></li>
                                 </ul>
                             </div>
                         </div>
@@ -198,10 +242,36 @@
                             </div>
                         </div>
                         <div class="col-lg-4 col-sm-6 sm-padding">
-                            <div class="map-wrapper" style="position:relative;">
-                                <iframe src="https://www.google.com/maps?q=Lange+Str.+32,+31848+Bad+M%C3%BCnder,+Germany&z=16&output=embed" width="100%" height="200" frameborder="0" style="border:0;" allowfullscreen=""></iframe>
-                                <a href="https://www.google.com/maps/place/Pizzeria+da+Luigi/@52.1964047,9.4649889,578m/data=!3m1!1e3!4m14!1m7!3m6!1s0x47ba9b2a3ccbb9a3:0xd72f483a0decf65a!2sPizzeria+da+Luigi!8m2!3d52.1964047!4d9.4649889!16s%2Fg%2F1tfl8rzh!3m5!1s0x47ba9b2a3ccbb9a3:0xd72f483a0decf65a!8m2!3d52.1964047!4d9.4649889!16s%2Fg%2F1tfl8rzh?entry=ttu&g_ep=EgoyMDI2MDgwNS4xIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener" style="position:absolute; bottom:8px; right:8px; background:#fff; color:#000; padding:5px 10px; border-radius:4px; font-size:12px; text-decoration:none; box-shadow:0 2px 6px rgba(0,0,0,0.3); z-index:2;">View on Google Maps</a>
-                            </div><!-- /#google-map -->
+                            <div class="footer-widget booking-form">
+                                <h3>Book a Table <span></span></h3>
+                                <form action="booking-form.php" method="post" id="ajax_booking_form" class="form-horizontal">
+                                    <div class="booking-form-group">
+                                        <div class="form-padding">
+                                            <input type="text" id="b_name" name="b_name" class="form-control" placeholder="Your Name" required>
+                                        </div>
+                                        <div class="form-padding">
+                                            <input type="email" id="b_email" name="b_email" class="form-control" placeholder="Email" required>
+                                        </div>
+                                        <div class="form-padding">
+                                            <select class="form-select" id="b_person" name="b_person">
+                                              <option selected>Person</option>
+                                              <option>2 Person</option>
+                                              <option>3 Person</option>
+                                              <option>4 Person</option>
+                                              <option>5 Person</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-padding">
+                                            <input class="form-control" type="date" id="b_date" name="b_date">
+                                        </div>
+                                        <div class="form-padding">
+                                            <textarea id="b_message" name="b_message" cols="30" rows="5" class="form-control message" placeholder="Message" required></textarea>
+                                        </div>
+                                    </div>
+                                    <button id="b_submit" class="book-btn" type="submit">Book a Table</button>
+                                    <div id="b-form-messages" class="alert" role="alert"></div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,7 +279,7 @@
             <div class="footer-bottom">
                 <div class="container">
                     <div class="copyright-wrap">
-                        <p>© <span id="currentYear"></span> ThemeEaster All Rights Reserved.</p>
+                        <p>© <span id="currentYear"></span>Website erstellt und verwaltet von <a href="https://webshot.in/" target="_blank" rel="noopener">Webshot Digital</a> &amp; Alle Rechte vorbehalten</p>
                     </div>
                 </div>
             </div><!--/.footer-bottom -->
@@ -234,6 +304,7 @@
 		<script src="assets/js/vendor/wow.min.js"></script>
 		<script src="assets/js/booking.js"></script>
 		<script src="assets/js/main.js"></script>
+		<script src="assets/js/order.js"></script>
 		<script src="assets/js/lang-switcher.js"></script>
 
     </body>

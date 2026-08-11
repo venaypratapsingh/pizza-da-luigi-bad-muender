@@ -320,11 +320,12 @@
             $(this).addClass('active');
             localStorage.setItem('site-lang', lang);
         });
-        var savedLang = localStorage.getItem('site-lang');
-        if (savedLang) {
-            $('.lang-switcher .lang-btn').removeClass('active');
-            $('.lang-switcher .lang-btn[data-lang="' + savedLang + '"]').addClass('active');
-        }
+        // Site defaults to German (see lang-switcher.js) even on a first visit
+        // with nothing in localStorage yet, so the active button must match
+        // that same default rather than only updating when a choice was saved.
+        var savedLang = localStorage.getItem('site-lang') || 'de';
+        $('.lang-switcher .lang-btn').removeClass('active');
+        $('.lang-switcher .lang-btn[data-lang="' + savedLang + '"]').addClass('active');
 
      });
 
