@@ -468,6 +468,11 @@
     }
 
     var MENU_CACHE_KEY = 'pizzaLuigiMenuCache';
+    // Bump this whenever the shape of what /api/menu returns changes (e.g.
+    // adding addonGroups) - otherwise a visitor's old cached menu from
+    // before the change keeps getting instant-painted forever, since
+    // localStorage persists indefinitely unlike the cart's sessionStorage.
+    var MENU_CACHE_VERSION = 2;
 
     // Paints the last-known menu instantly (no spinner) from a prior visit,
     // while loadMenu() still fetches fresh data underneath to reconcile any
@@ -477,7 +482,7 @@
             var raw = localStorage.getItem(MENU_CACHE_KEY);
             if (!raw) return false;
             var data = JSON.parse(raw);
-            if (!data || !data.categories || data.categories.length === 0) return false;
+            if (!data || data.version !== MENU_CACHE_VERSION || !data.categories || data.categories.length === 0) return false;
             document.getElementById('menu-loading').style.display = 'none';
             deliveryFee = Number(data.delivery_fee || 0);
             renderMenu(data.categories);
@@ -489,7 +494,8 @@
 
     function cacheMenu(data) {
         try {
-            localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(data));
+            var withVersion = Object.assign({}, data, { version: MENU_CACHE_VERSION });
+            localStorage.setItem(MENU_CACHE_KEY, JSON.stringify(withVersion));
         } catch (e) {
             // localStorage unavailable/full - just skip caching, no functional impact
         }
