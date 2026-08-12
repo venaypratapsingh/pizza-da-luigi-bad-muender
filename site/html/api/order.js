@@ -127,6 +127,10 @@ module.exports = async (req, res) => {
       res.status(400).json({ error: 'Invalid item in cart' });
       return;
     }
+    if (item.notes !== undefined && item.notes !== null && typeof item.notes !== 'string') {
+      res.status(400).json({ error: 'Invalid item in cart' });
+      return;
+    }
   }
 
   try {
@@ -143,7 +147,11 @@ module.exports = async (req, res) => {
       type,
       customer_id: customerId,
       special_instructions: notes ? String(notes).trim().slice(0, 500) : undefined,
-      items: items.map((item) => ({ product_id: item.product_id, quantity: item.quantity })),
+      items: items.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        special_instructions: item.notes ? String(item.notes).trim().slice(0, 200) : undefined,
+      })),
     };
     if (type === 'delivery' && DELIVERY_FEE > 0) {
       orderPayload.delivery_charge = DELIVERY_FEE;

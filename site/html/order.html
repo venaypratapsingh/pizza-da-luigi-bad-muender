@@ -201,6 +201,25 @@
             </div>
         </div>
 
+        <!-- Extra-ingredients popup, opened when adding a product that has addon groups -->
+        <div id="addon-modal-overlay" class="cart-overlay addon-modal-overlay" style="display:none;">
+            <div id="addon-modal-backdrop" class="cart-overlay-backdrop"></div>
+            <div class="cart-overlay-panel addon-modal-panel">
+                <div class="cart-total">
+                    <div class="cart-overlay-header">
+                        <h3 class="cart-title" id="addon-modal-title">Extra Ingredients</h3>
+                        <button type="button" id="addon-modal-close" class="cart-overlay-close" aria-label="Close">&times;</button>
+                    </div>
+                    <p id="addon-modal-subtitle" class="addon-modal-subtitle"></p>
+                    <div id="addon-modal-groups" class="addon-modal-groups"></div>
+                    <div class="addon-modal-footer">
+                        <span id="addon-modal-total" class="addon-modal-total"></span>
+                        <button type="button" id="addon-modal-add" class="default-btn checkout-submit-btn"><span class="btn-label">Add To Cart</span><span></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer class="footer-section">
             <div class="footer-top">
                 <div class="footer-illustration"></div>

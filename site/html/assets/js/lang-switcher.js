@@ -280,6 +280,8 @@
     "(In Stock)": "(Auf Lager)",
     "Designed for simplicity and made from high quality materials. Its sleek geometry and material combinations creates a modern look.": "Entwickelt für Einfachheit und aus hochwertigen Materialien gefertigt. Seine schlichte Geometrie und Materialkombinationen schaffen einen modernen Look.",
     "Add To Cart": "In den Warenkorb",
+    "Extra Ingredients": "Extra Zutaten",
+    "Premium Ingredients": "Premium Zutaten",
     "SKU:": "Art.-Nr.:",
     "Categories:": "Kategorien:",
     "Bag": "Tasche",

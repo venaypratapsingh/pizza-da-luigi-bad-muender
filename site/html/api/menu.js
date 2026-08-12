@@ -3,10 +3,40 @@ const FLOCAFE_STAFF_EMAIL = process.env.FLOCAFE_STAFF_EMAIL;
 const FLOCAFE_STAFF_PASSWORD = process.env.FLOCAFE_STAFF_PASSWORD;
 const DELIVERY_FEE = Number(process.env.FLOCAFE_DELIVERY_FEE || 0);
 
-// "Zutat ..." / "Preis pro ..." / "Price Pro ..." entries are per-ingredient
-// add-on pricing references, not standalone dishes - they always sort to the
-// bottom of their category instead of taking part in the normal price order.
+// "Zutat ..." / "Preis pro ..." / "Price Pro ..." entries are FloCafe catalog
+// SKUs that represent "one extra ingredient at this category's price tier" -
+// their name is a label followed by the full comma-separated list of every
+// ingredient available at that price. They're never sold as-is; instead
+// they're parsed into per-ingredient checkboxes on the order page (see
+// order.js) and only ever added to a cart/order using their real product_id
+// and price, so FloCafe's own tax/total calculation stays correct.
 const ADDON_NAME_PATTERN = /^(zutat|preis\s*pro|price\s*pro)/i;
+
+// Known label prefixes to strip before splitting the rest of the name on
+// commas. Longest/most specific patterns first so e.g. the Calzone label
+// (which itself contains no commas) doesn't get confused with the generic
+// "Preis pro Belag" one.
+const ADDON_LABEL_STRIP_PATTERNS = [
+  /^zutat\s+salat\s+/i,
+  /^preis\s*pro\s+belag\s+in\s+der\s+calzone\s*\([^)]*\)\s*/i,
+  /^preis\s*pro\s+belag\s+/i,
+  /^price\s*pro\s+extra\s+belag\s+/i,
+  /^zutat\s+/i,
+];
+
+function parseAddonIngredients(name) {
+  let rest = name;
+  for (const pattern of ADDON_LABEL_STRIP_PATTERNS) {
+    if (pattern.test(rest)) {
+      rest = rest.replace(pattern, '');
+      break;
+    }
+  }
+  return rest
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
 
 let cachedToken = null;
 let cachedTokenExpiry = 0;
@@ -58,26 +88,40 @@ module.exports = async (req, res) => {
     const { products } = await productsRes.json();
 
     const grouped = (categories || [])
-      .map((category) => ({
-        id: category.id,
-        name: category.name,
-        description: category.description || '',
-        slug: category.slug || '',
-        items: (products || [])
-          .filter((product) => product.category_id === category.id && product.is_active !== 0)
+      .map((category) => {
+        const categoryProducts = (products || []).filter(
+          (product) => product.category_id === category.id && product.is_active !== 0
+        );
+
+        const addonGroups = categoryProducts
+          .filter((product) => ADDON_NAME_PATTERN.test(product.name))
+          .map((product) => ({
+            id: product.id,
+            price: product.price,
+            ingredients: parseAddonIngredients(product.name),
+          }))
+          .filter((group) => group.ingredients.length > 0)
+          .sort((a, b) => a.price - b.price);
+
+        const items = categoryProducts
+          .filter((product) => !ADDON_NAME_PATTERN.test(product.name))
           .map((product) => ({
             id: product.id,
             name: product.name,
             description: product.description || '',
             price: product.price,
           }))
-          .sort((a, b) => {
-            const aIsAddon = ADDON_NAME_PATTERN.test(a.name);
-            const bIsAddon = ADDON_NAME_PATTERN.test(b.name);
-            if (aIsAddon !== bIsAddon) return aIsAddon ? 1 : -1;
-            return a.price - b.price;
-          }),
-      }))
+          .sort((a, b) => a.price - b.price);
+
+        return {
+          id: category.id,
+          name: category.name,
+          description: category.description || '',
+          slug: category.slug || '',
+          items,
+          addonGroups,
+        };
+      })
       .filter((category) => category.items.length > 0);
 
     // Menu items rarely change second-to-second, so let Vercel's edge cache

@@ -8,7 +8,13 @@
     function loadCart() {
         try {
             var raw = sessionStorage.getItem(CART_KEY);
-            return raw ? JSON.parse(raw) : [];
+            var parsed = raw ? JSON.parse(raw) : [];
+            // Carts saved before addon support shipped have no cartLineId/addons -
+            // patch them up rather than let the qty/remove buttons break on them.
+            return parsed.map(function (line) {
+                if (line.cartLineId) return line;
+                return Object.assign({}, line, { cartLineId: line.id, addons: line.addons || [] });
+            });
         } catch (e) {
             return [];
         }
@@ -100,39 +106,65 @@
         if (window.applySiteLanguage) window.applySiteLanguage();
     }
 
-    function findCartItem(id) {
+    // Each cart line is one specific product + one specific set of chosen
+    // extra ingredients - two orders of the same salad with different extras
+    // must stay as separate lines, so the merge key includes the addon
+    // selection, not just the product id.
+    function addonSignature(addons) {
+        if (!addons || addons.length === 0) return '';
+        return addons
+            .map(function (a) { return a.groupId + ':' + a.name; })
+            .sort()
+            .join('|');
+    }
+
+    function lineUnitPrice(cartLine) {
+        var addonsTotal = (cartLine.addons || []).reduce(function (sum, a) { return sum + a.price; }, 0);
+        return cartLine.price + addonsTotal;
+    }
+
+    function findCartLine(cartLineId) {
         for (var i = 0; i < cart.length; i++) {
-            if (cart[i].id === id) return cart[i];
+            if (cart[i].cartLineId === cartLineId) return cart[i];
         }
         return null;
     }
 
-    function addToCart(item) {
-        var existing = findCartItem(item.id);
+    function addToCart(item, addons) {
+        var selectedAddons = addons || [];
+        var cartLineId = item.id + '::' + addonSignature(selectedAddons);
+        var existing = findCartLine(cartLineId);
         if (existing) {
             existing.qty += 1;
         } else {
-            cart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
+            cart.push({
+                cartLineId: cartLineId,
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                qty: 1,
+                addons: selectedAddons,
+            });
         }
         saveCart();
         renderCart();
         renderCartBar();
     }
 
-    function changeQty(id, delta) {
-        var existing = findCartItem(id);
+    function changeQty(cartLineId, delta) {
+        var existing = findCartLine(cartLineId);
         if (!existing) return;
         existing.qty += delta;
         if (existing.qty <= 0) {
-            cart = cart.filter(function (i) { return i.id !== id; });
+            cart = cart.filter(function (i) { return i.cartLineId !== cartLineId; });
         }
         saveCart();
         renderCart();
         renderCartBar();
     }
 
-    function removeItem(id) {
-        cart = cart.filter(function (i) { return i.id !== id; });
+    function removeItem(cartLineId) {
+        cart = cart.filter(function (i) { return i.cartLineId !== cartLineId; });
         saveCart();
         renderCart();
         renderCartBar();
@@ -144,7 +176,7 @@
     }
 
     function cartTotals() {
-        var subtotal = cart.reduce(function (sum, item) { return sum + item.price * item.qty; }, 0);
+        var subtotal = cart.reduce(function (sum, item) { return sum + lineUnitPrice(item) * item.qty; }, 0);
         var orderType = getOrderType();
         var deliveryAmount = orderType === 'delivery' ? deliveryFee : 0;
         var count = cart.reduce(function (sum, item) { return sum + item.qty; }, 0);
@@ -208,14 +240,17 @@
         formEl.style.display = '';
 
         itemsEl.innerHTML = cart.map(function (item) {
+            var addonsHtml = (item.addons && item.addons.length)
+                ? '<span class="cart-item-addons">+ ' + escapeHtml(item.addons.map(function (a) { return a.name; }).join(', ')) + '</span>'
+                : '';
             return (
-                '<li data-id="' + escapeHtml(item.id) + '">' +
-                    '<span class="cart-item-name">' + escapeHtml(item.name) + '</span>' +
+                '<li data-line-id="' + escapeHtml(item.cartLineId) + '">' +
+                    '<span class="cart-item-name">' + escapeHtml(item.name) + addonsHtml + '</span>' +
                     '<span class="cart-item-controls">' +
                         '<button type="button" class="qty-btn" data-action="dec">&minus;</button>' +
                         '<span>' + item.qty + '</span>' +
                         '<button type="button" class="qty-btn" data-action="inc">+</button>' +
-                        '<span>' + formatPrice(item.price * item.qty) + '</span>' +
+                        '<span>' + formatPrice(lineUnitPrice(item) * item.qty) + '</span>' +
                         '<button type="button" class="remove-item-btn" data-action="remove" aria-label="Remove">&times;</button>' +
                     '</span>' +
                 '</li>'
@@ -321,11 +356,95 @@
             var item = category.items.find(function (i) { return i.id === id; });
             var addBtn = row.querySelector('[data-action="add"]');
             addBtn.addEventListener('click', function () {
-                addToCart(item);
+                if (category.addonGroups && category.addonGroups.length > 0) {
+                    openAddonModal(item, category);
+                } else {
+                    addToCart(item);
+                }
             });
         });
 
         applyTranslations();
+    }
+
+    var ADDON_GROUP_LABELS = ['Extra Ingredients', 'Premium Ingredients'];
+    var currentAddonModalItem = null;
+
+    function addonGroupLabel(index) {
+        return ADDON_GROUP_LABELS[index] || ('Extra Ingredients ' + (index + 1));
+    }
+
+    function updateAddonModalTotal(item) {
+        var checkboxes = document.querySelectorAll('#addon-modal-groups input[type="checkbox"]:checked');
+        var addonsTotal = 0;
+        Array.prototype.forEach.call(checkboxes, function (cb) {
+            addonsTotal += Number(cb.getAttribute('data-price'));
+        });
+        document.getElementById('addon-modal-total').textContent = formatPrice(item.price + addonsTotal);
+    }
+
+    function openAddonModal(item, category) {
+        currentAddonModalItem = item;
+
+        document.getElementById('addon-modal-subtitle').textContent = item.name;
+
+        var groupsHtml = category.addonGroups.map(function (group, groupIndex) {
+            var optionsHtml = group.ingredients.map(function (ingredientName) {
+                return (
+                    '<label class="addon-modal-option">' +
+                        '<input type="checkbox" data-group-id="' + escapeHtml(group.id) + '" data-price="' + group.price + '" data-name="' + escapeHtml(ingredientName) + '">' +
+                        '<span class="addon-modal-option-name">' + escapeHtml(ingredientName) + '</span>' +
+                        '<span class="addon-modal-option-price">+' + formatPrice(group.price) + '</span>' +
+                    '</label>'
+                );
+            }).join('');
+
+            return (
+                '<div class="addon-modal-group">' +
+                    '<div class="addon-modal-group-title"><span>' + escapeHtml(addonGroupLabel(groupIndex)) + '</span> ' +
+                        '<span class="addon-modal-group-price">+' + formatPrice(group.price) + '</span></div>' +
+                    optionsHtml +
+                '</div>'
+            );
+        }).join('');
+
+        document.getElementById('addon-modal-groups').innerHTML = groupsHtml;
+
+        Array.prototype.forEach.call(document.querySelectorAll('#addon-modal-groups input[type="checkbox"]'), function (cb) {
+            cb.addEventListener('change', function () { updateAddonModalTotal(item); });
+        });
+
+        updateAddonModalTotal(item);
+        applyTranslations();
+
+        document.getElementById('addon-modal-overlay').style.display = '';
+        document.body.classList.add('cart-open');
+    }
+
+    function closeAddonModal() {
+        document.getElementById('addon-modal-overlay').style.display = 'none';
+        document.body.classList.remove('cart-open');
+        currentAddonModalItem = null;
+    }
+
+    function confirmAddonModal() {
+        if (!currentAddonModalItem) return;
+        var checkboxes = document.querySelectorAll('#addon-modal-groups input[type="checkbox"]:checked');
+        var addons = Array.prototype.map.call(checkboxes, function (cb) {
+            return {
+                groupId: cb.getAttribute('data-group-id'),
+                price: Number(cb.getAttribute('data-price')),
+                name: cb.getAttribute('data-name'),
+            };
+        });
+        addToCart(currentAddonModalItem, addons);
+        closeAddonModal();
+    }
+
+    function initAddonModalEvents() {
+        document.getElementById('addon-modal-close').addEventListener('click', closeAddonModal);
+        document.getElementById('addon-modal-backdrop').addEventListener('click', closeAddonModal);
+        document.getElementById('addon-modal-add').addEventListener('click', confirmAddonModal);
     }
 
     function renderMenu(loadedCategories) {
@@ -409,6 +528,36 @@
         label.textContent = isLoading ? 'Placing order…' : 'Place Order';
     }
 
+    // FloCafe has no way to charge a custom per-order-item price, so each
+    // chosen extra ingredient is sent as its own line using the real,
+    // already-priced/taxed catalog product for that ingredient's price tier
+    // (quantity = how many extras were picked at that tier) - that's what
+    // makes the total FloCafe records/prints correct. The specific
+    // ingredient names go out as that line's Bemerkung/special_instructions
+    // so the kitchen knows exactly what to add.
+    function buildOrderItems() {
+        var orderItems = [];
+        cart.forEach(function (line) {
+            orderItems.push({ product_id: line.id, quantity: line.qty });
+
+            var addonsByGroup = {};
+            (line.addons || []).forEach(function (addon) {
+                if (!addonsByGroup[addon.groupId]) addonsByGroup[addon.groupId] = [];
+                addonsByGroup[addon.groupId].push(addon.name);
+            });
+
+            Object.keys(addonsByGroup).forEach(function (groupId) {
+                var names = addonsByGroup[groupId];
+                orderItems.push({
+                    product_id: groupId,
+                    quantity: names.length * line.qty,
+                    notes: 'Extra: ' + names.join(', ') + ' (für ' + line.name + ')',
+                });
+            });
+        });
+        return orderItems;
+    }
+
     function submitOrder() {
         var errorEl = document.getElementById('checkout-error');
         errorEl.style.display = 'none';
@@ -419,9 +568,7 @@
             type: getOrderType(),
             address: document.getElementById('checkout-address').value.trim(),
             notes: document.getElementById('checkout-notes').value.trim(),
-            items: cart.map(function (item) {
-                return { product_id: item.id, quantity: item.qty };
-            }),
+            items: buildOrderItems(),
         };
 
         setSubmitLoading(true);
@@ -509,11 +656,11 @@
             if (!btn) return;
             var li = btn.closest('li');
             if (!li) return;
-            var id = li.getAttribute('data-id');
+            var lineId = li.getAttribute('data-line-id');
             var action = btn.getAttribute('data-action');
-            if (action === 'inc') changeQty(id, 1);
-            if (action === 'dec') changeQty(id, -1);
-            if (action === 'remove') removeItem(id);
+            if (action === 'inc') changeQty(lineId, 1);
+            if (action === 'dec') changeQty(lineId, -1);
+            if (action === 'remove') removeItem(lineId);
         });
 
         Array.prototype.forEach.call(document.querySelectorAll('input[name="order-type"]'), function (radio) {
@@ -548,13 +695,16 @@
         document.getElementById('cart-overlay-close').addEventListener('click', closeCart);
         document.getElementById('cart-overlay-backdrop').addEventListener('click', closeCart);
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeCart();
+            if (e.key !== 'Escape') return;
+            if (currentAddonModalItem) closeAddonModal();
+            else closeCart();
         });
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         if (!document.getElementById('menu-categories')) return;
         initCartEvents();
+        initAddonModalEvents();
         initCategoryDragScroll();
         renderCart();
         renderCartBar();
