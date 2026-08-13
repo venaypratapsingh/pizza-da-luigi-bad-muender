@@ -646,3 +646,54 @@ body.cart-open {
     color: #0e1318;
     font-size: 16px;
 }
+
+.addon-modal-add-btn {
+    height: 52px !important;
+    line-height: 52px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 26px !important;
+    box-shadow: 0 8px 20px rgba(255, 142, 40, 0.35);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.addon-modal-add-btn:active {
+    transform: scale(0.97);
+}
+
+/* Confetti burst played on "add to cart" - particles are appended straight
+   to <body> (not inside the modal/menu row) so they keep animating and
+   stay visible even after the addon popup closes right underneath them. */
+.confetti-particle {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 3000;
+    animation: confettiBurst 0.7s ease-out forwards;
+}
+
+@keyframes confettiBurst {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--rot)) scale(0.4);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .confetti-particle {
+        animation: none;
+        display: none;
+    }
+}

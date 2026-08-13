@@ -106,6 +106,38 @@
         if (window.applySiteLanguage) window.applySiteLanguage();
     }
 
+    var CONFETTI_COLORS = ['#ff8e28', '#ff9d2d', '#0e1318', '#25D366', '#ffd166', '#ef476f'];
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Little celebratory burst played from wherever the "add to cart" click
+    // happened - particles are fixed-positioned and appended to <body>
+    // itself (not the button's own parent), so they keep flying/fading even
+    // if that button's popup/row disappears a moment later.
+    function burstConfetti(originEl) {
+        if (prefersReducedMotion || !originEl || !originEl.getBoundingClientRect) return;
+        var rect = originEl.getBoundingClientRect();
+        var originX = rect.left + rect.width / 2;
+        var originY = rect.top + rect.height / 2;
+        var count = 16;
+
+        for (var i = 0; i < count; i++) {
+            var particle = document.createElement('span');
+            particle.className = 'confetti-particle';
+            var angle = (Math.PI * 2 * i) / count + (Math.random() * 0.5 - 0.25);
+            var distance = 55 + Math.random() * 55;
+            var dx = Math.cos(angle) * distance;
+            var dy = Math.sin(angle) * distance;
+            particle.style.left = originX + 'px';
+            particle.style.top = originY + 'px';
+            particle.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+            particle.style.setProperty('--dx', dx + 'px');
+            particle.style.setProperty('--dy', dy + 'px');
+            particle.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
+            particle.addEventListener('animationend', function () { this.remove(); });
+            document.body.appendChild(particle);
+        }
+    }
+
     // Each cart line is one specific product + one specific set of chosen
     // extra ingredients - two orders of the same salad with different extras
     // must stay as separate lines, so the merge key includes the addon
@@ -360,6 +392,7 @@
                     openAddonModal(item, category);
                 } else {
                     addToCart(item);
+                    burstConfetti(addBtn);
                 }
             });
         });
@@ -437,6 +470,9 @@
                 name: cb.getAttribute('data-name'),
             };
         });
+        // Burst from the button before the popup closes underneath it, so
+        // the animation actually has something visible to start from.
+        burstConfetti(document.getElementById('addon-modal-add'));
         addToCart(currentAddonModalItem, addons);
         closeAddonModal();
     }
