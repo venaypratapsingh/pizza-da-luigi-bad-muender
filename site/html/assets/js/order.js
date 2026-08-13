@@ -450,6 +450,9 @@
         updateAddonModalTotal(item);
         applyTranslations();
 
+        var scrollArea = document.querySelector('.addon-modal-scroll');
+        if (scrollArea) scrollArea.scrollTop = 0;
+
         document.getElementById('addon-modal-overlay').style.display = '';
         document.body.classList.add('cart-open');
     }

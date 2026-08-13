@@ -574,8 +574,35 @@ body.cart-open {
     margin-top: 2px;
 }
 
+/* Sticky header/footer with only the ingredient list scrolling between
+   them - so the price + "Add To Cart" bar stays pinned at the bottom of
+   the popup (full width) no matter how far the customer scrolls through
+   a long ingredient list, instead of living at the end of the scroll. */
 .addon-modal-panel {
     max-width: 520px;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.addon-modal-panel .cart-total {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.addon-modal-panel .cart-overlay-header {
+    flex: 0 0 auto;
+}
+
+.addon-modal-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    /* Without this a flex child won't shrink below its content size, so
+       it would just grow the whole panel instead of scrolling inside it. */
+    min-height: 0;
 }
 
 .addon-modal-subtitle {
@@ -585,7 +612,7 @@ body.cart-open {
 }
 
 .addon-modal-groups {
-    margin-bottom: 20px;
+    margin-bottom: 4px;
 }
 
 .addon-modal-group {
@@ -647,6 +674,11 @@ body.cart-open {
     gap: 10px;
     border-top: 1px solid #eee;
     padding-top: 15px;
+    /* Never shrinks/scrolls away - stays docked to the bottom of the
+       popup as its own full-width bar while .addon-modal-scroll above
+       it does the scrolling. */
+    flex: 0 0 auto;
+    background: #fff;
 }
 
 .addon-modal-total {
