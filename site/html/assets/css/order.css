@@ -574,10 +574,11 @@ body.cart-open {
     margin-top: 2px;
 }
 
-/* Sticky header/footer with only the ingredient list scrolling between
-   them - so the price + "Add To Cart" bar stays pinned at the bottom of
-   the popup (full width) no matter how far the customer scrolls through
-   a long ingredient list, instead of living at the end of the scroll. */
+/* Sticky header (title + subtitle + running price) with only the
+   ingredient list scrolling underneath it - so the price is visible the
+   whole time someone is checking ingredients, no matter how long the list
+   is or how far they've scrolled, since closing the popup (not a separate
+   button) is what adds the item to the cart. */
 .addon-modal-panel {
     max-width: 520px;
     max-height: 85vh;
@@ -593,7 +594,9 @@ body.cart-open {
     overflow: hidden;
 }
 
-.addon-modal-panel .cart-overlay-header {
+.addon-modal-panel .cart-overlay-header,
+.addon-modal-panel .addon-modal-subtitle,
+.addon-modal-panel .addon-modal-price-row {
     flex: 0 0 auto;
 }
 
@@ -605,6 +608,22 @@ body.cart-open {
     min-height: 0;
 }
 
+.addon-modal-price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    background: #fff3e6;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.addon-modal-price-label {
+    font-weight: 600;
+    color: #0e1318;
+    font-size: 14px;
+}
+
 .addon-modal-subtitle {
     color: #ff8e28;
     font-weight: 600;
@@ -612,7 +631,11 @@ body.cart-open {
 }
 
 .addon-modal-groups {
-    margin-bottom: 4px;
+    /* Breathing room at the end of the scrollable list - .cart-total's own
+       padding only wraps the outside of the scroll container, not the
+       scrolled content, so without this the last ingredient would sit
+       flush against the popup's bottom edge. */
+    padding-bottom: 20px;
 }
 
 .addon-modal-group {
@@ -668,58 +691,10 @@ body.cart-open {
     font-size: 13px;
 }
 
-.addon-modal-footer {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    /* Never shrinks/scrolls away - stays docked to the bottom of the
-       popup as its own full-width bar while .addon-modal-scroll above
-       it does the scrolling. */
-    flex: 0 0 auto;
-    background: #fff;
-}
-
 .addon-modal-total {
     font-weight: 700;
-    color: #0e1318;
-    font-size: 16px;
-}
-
-.addon-modal-add-btn {
-    /* height:auto + min-height (not a fixed height) - .default-btn also
-       sets overflow:hidden for its hover-fill circle, so a fixed height
-       combined with line-height:52px clipped/pushed the label out from
-       under the icon instead of centering both together. Flex alignment
-       alone (align-items:center) is enough once line-height stops
-       fighting it. */
-    height: auto !important;
-    min-height: 52px;
-    line-height: normal !important;
-    padding: 14px 24px !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.5px !important;
-    border-radius: 26px !important;
-    box-shadow: 0 8px 20px rgba(255, 142, 40, 0.35);
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.addon-modal-add-btn i {
-    line-height: 1;
-    font-size: 18px;
-}
-
-.addon-modal-add-btn .btn-label {
-    line-height: normal;
-}
-
-.addon-modal-add-btn:active {
-    transform: scale(0.97);
+    color: #ff8e28;
+    font-size: 20px;
 }
 
 /* Confetti burst played on "add to cart" - particles are appended straight

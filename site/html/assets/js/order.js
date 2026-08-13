@@ -457,33 +457,35 @@
         document.body.classList.add('cart-open');
     }
 
+    // There's no separate "confirm" button - closing the popup (via the
+    // close button, tapping the backdrop, or Escape) is itself the confirm
+    // action: whatever's checked at that moment gets added to the cart.
+    // That's why the running price lives pinned in the header instead of
+    // next to a button - it has to stay visible the whole time someone is
+    // scrolling/checking ingredients, since there's no extra "review before
+    // you commit" step anymore.
     function closeAddonModal() {
+        if (currentAddonModalItem) {
+            var checkboxes = document.querySelectorAll('#addon-modal-groups input[type="checkbox"]:checked');
+            var addons = Array.prototype.map.call(checkboxes, function (cb) {
+                return {
+                    groupId: cb.getAttribute('data-group-id'),
+                    price: Number(cb.getAttribute('data-price')),
+                    name: cb.getAttribute('data-name'),
+                };
+            });
+            burstConfetti(document.getElementById('addon-modal-close'));
+            addToCart(currentAddonModalItem, addons);
+        }
+
         document.getElementById('addon-modal-overlay').style.display = 'none';
         document.body.classList.remove('cart-open');
         currentAddonModalItem = null;
     }
 
-    function confirmAddonModal() {
-        if (!currentAddonModalItem) return;
-        var checkboxes = document.querySelectorAll('#addon-modal-groups input[type="checkbox"]:checked');
-        var addons = Array.prototype.map.call(checkboxes, function (cb) {
-            return {
-                groupId: cb.getAttribute('data-group-id'),
-                price: Number(cb.getAttribute('data-price')),
-                name: cb.getAttribute('data-name'),
-            };
-        });
-        // Burst from the button before the popup closes underneath it, so
-        // the animation actually has something visible to start from.
-        burstConfetti(document.getElementById('addon-modal-add'));
-        addToCart(currentAddonModalItem, addons);
-        closeAddonModal();
-    }
-
     function initAddonModalEvents() {
         document.getElementById('addon-modal-close').addEventListener('click', closeAddonModal);
         document.getElementById('addon-modal-backdrop').addEventListener('click', closeAddonModal);
-        document.getElementById('addon-modal-add').addEventListener('click', confirmAddonModal);
     }
 
     function renderMenu(loadedCategories) {
