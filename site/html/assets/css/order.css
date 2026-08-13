@@ -656,8 +656,16 @@ body.cart-open {
 }
 
 .addon-modal-add-btn {
-    height: 52px !important;
-    line-height: 52px !important;
+    /* height:auto + min-height (not a fixed height) - .default-btn also
+       sets overflow:hidden for its hover-fill circle, so a fixed height
+       combined with line-height:52px clipped/pushed the label out from
+       under the icon instead of centering both together. Flex alignment
+       alone (align-items:center) is enough once line-height stops
+       fighting it. */
+    height: auto !important;
+    min-height: 52px;
+    line-height: normal !important;
+    padding: 14px 24px !important;
     font-size: 16px !important;
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
@@ -667,6 +675,15 @@ body.cart-open {
     align-items: center;
     justify-content: center;
     gap: 8px;
+}
+
+.addon-modal-add-btn i {
+    line-height: 1;
+    font-size: 18px;
+}
+
+.addon-modal-add-btn .btn-label {
+    line-height: normal;
 }
 
 .addon-modal-add-btn:active {
