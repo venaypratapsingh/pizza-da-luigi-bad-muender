@@ -432,8 +432,13 @@ body.cart-open {
 .cart-items-list li {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
+    /* flex-start, not center: once a line's addons make the name wrap to
+       2-3 lines, centering made the qty/price/remove controls float in
+       the middle of the block instead of lining up with anything. Top
+       alignment keeps them level with the item name's first line, which
+       reads correctly regardless of how many lines the name wraps to. */
+    align-items: flex-start;
+    padding: 12px 0;
     border-bottom: 1px solid #eee;
     gap: 10px;
 }
@@ -445,6 +450,9 @@ body.cart-open {
        quantity/price/remove controls next to it. */
     flex: 1 1 auto;
     min-width: 0;
+    /* Lines up visually with the controls row now that both sit at
+       flex-start instead of relying on center alignment to match them. */
+    padding-top: 4px;
 }
 
 .cart-item-controls {
